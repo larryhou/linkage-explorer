@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   contentCreationComplete="appReadyHandler(event)"
+					   showStatusBar="false"  >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Style source="style.css" />
+	<s:layout>
+		<s:VerticalLayout gap="0"/>
+	</s:layout>
+	<s:BorderContainer id="container" width="100%" height="484"
+					    borderVisible="false"/>
+	<s:TextArea id="output" width="100%" height="100%"
+				 borderAlpha="0.1" editable="false"/>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private var _explorer:AssetExplorer;
+			
+			/**
+			 *  程序准备完成
+			 * */
+			private function appReadyHandler(e:Event):void
+			{	
+				addEventListener(Event.ADDED_TO_STAGE, stageReadyHandler);
+				
+				this.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER,dragEnterHandler);
+				this.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, dragDropHandler);		
+			}
+			
+			/**
+			 * 初始化程序
+			 * */
+			private function stageReadyHandler(e:Event):void
+			{
+				_explorer = new AssetExplorer();
+				this.container.addElement(_explorer);
+				
+				_explorer.x = (this.container.width - _explorer.width) / 2;
+				_explorer.y = (this.container.height - _explorer.height) / 2;
+			}
+			
+			/**
+			 * 拖进处理
+			 * */
+			private function dragEnterHandler(event:NativeDragEvent):void
+			{
+				if (!event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) return;
+				
+				NativeDragManager.acceptDragDrop(this);
+			}
+			
+			/**
+			 * 放开鼠标处理
+			 * */
+			private function dragDropHandler(event:NativeDragEvent):void
+			{
+				var list:Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				
+				var reg:RegExp = /swf$/i;
+				var stream:FileStream = new FileStream();
+				for each(var file:File in list)
+				{
+					if(reg.test(file.extension))
+					{
+						stream.open(file,FileMode.READ);
+						var bytes:ByteArray = new ByteArray();
+						
+						stream.readBytes(bytes);
+						stream.close();
+						
+						try
+						{
+							_explorer.readBytes(bytes);
+						}
+						catch (error:Error)
+						{
+							this.output.text = "@[" + file.nativePath + "]error:" + error; return;
+						}
+						
+						this.output.text = "@[" + file.nativePath + "]Read successfully.";
+						break;
+					}
+				}
+			}	
+		]]>
+	</fx:Script>
+</s:WindowedApplication>

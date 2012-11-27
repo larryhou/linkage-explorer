@@ -1,0 +1,21 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+global
+{
+	font-family:"微软雅黑";
+	font-size:16;
+}
+
+s|TextArea
+{
+	borderAlpha:0.2;
+	font-family:"Monaco";
+}
+
+@font-face {
+	src: url("../lib/MONACO.TTF");
+	fontFamily: "Monaco";
+	cff: false;
+}	
