@@ -4,6 +4,7 @@ bin-debug/
 bin-release/
 .DS_Store
 obj/
+db
 
 # Other files and folders
 .settings/
